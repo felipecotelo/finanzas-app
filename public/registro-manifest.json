@@ -1,0 +1,18 @@
+{
+  "name": "Registro Finanzas",
+  "short_name": "Registro",
+  "description": "Registro rápido de gastos e ingresos en borrador",
+  "start_url": "/registro.html",
+  "display": "standalone",
+  "background_color": "#0f1b3d",
+  "theme_color": "#1a56db",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "registro-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

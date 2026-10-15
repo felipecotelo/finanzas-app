@@ -1,0 +1,13 @@
+{
+  "name": "finanzas-felipe",
+  "version": "1.0.0",
+  "description": "Dashboard financiero personal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "data": "python3 ../Estados\\ de\\ cuenta/process_data.py"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
