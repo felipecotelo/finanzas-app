@@ -234,7 +234,7 @@
   .alert-item.warn .alert-icon  { color:#D97706; }
   .alert-item.info .alert-icon  { color:#2563EB; }
   .alert-item.ok   .alert-icon  { color:#059669; }
-  .alert-text { font-size:13px; line-height:1.5; }
+  .alert-text { font-size:13px; line-height:1.5; flex:1; min-width:0; }
   .alert-text strong { font-weight:600; }
 
   /* tx search */
@@ -926,14 +926,9 @@ function buildResumen() {
       }
     }).join(' &nbsp;·&nbsp; ');
 
-    const totalColor = totalDelta >= 0 ? '#059669' : '#DC2626';
-    const totalTxt = totalDelta >= 0
-      ? `Ahorraste <strong style="color:#059669">${fmt(totalDelta)}</strong> por encima del sueldo AUF en el período.`
-      : `Gastaste <strong style="color:#DC2626">${fmt(-totalDelta)}</strong> más de lo que entró por sueldo AUF en el período (sin contar USD de clientes ni ingresos extra).`;
     alerts.push({ type: nDeficit > nAhorro ? 'warn' : 'ok', icon: 'ti-piggy-bank',
       html: `<strong>¿Vivís con el sueldo AUF?</strong><br>
-             <span style="font-size:12px;line-height:2">${balRow}</span><br>
-             <span style="font-size:12px">${totalTxt}</span>` });
+             <span style="font-size:12px;line-height:2">${balRow}</span>` });
 
     // ── 2. DETECCIÓN DE SUBAS EN GASTOS FIJOS ──────────────
     const fijos = ['Hogar · Gas','Hogar · UTE','Hogar · Antel','Hogar · DirecTV','Telefonía','Auto · Seguro'];
@@ -987,8 +982,16 @@ function buildResumen() {
     const farMeses = meses.filter(m=>catMes('Farmacia',m)>0);
     if (farMeses.length >= 2) {
       const vals = farMeses.map(m=>catMes('Farmacia',m));
+      const alza = vals[vals.length-1] > vals[0]*1.2;
+      const farPills = farMeses.map((m,i)=>
+        `<div style="background:var(--bg2);border-radius:6px;padding:5px 10px;font-size:12px;text-align:center;min-width:80px">
+          <div style="color:var(--muted);font-size:11px">${m}</div>
+          <strong>${fmtK(vals[i])}</strong>
+        </div>`).join('');
       apuntes.push({ icon:'ti-pill',
-        html:`<strong>Farmacia:</strong> ${farMeses.map((m,i)=>`${m} ${fmtK(vals[i])}`).join(' · ')}.${vals[vals.length-1]>vals[0]*1.2?' <span style="color:#DC2626">Tendencia al alza.</span>':''} <em>Margarita (10 meses): fórmula láctea + pañales explican el crecimiento. La fórmula debería ir bajando a medida que pase a comida normal; los pañales son costo fijo por ahora.</em>` });
+        html:`<strong>Farmacia</strong>${alza?' <span style="font-size:11px;background:#FEE2E2;color:#DC2626;border-radius:4px;padding:2px 6px">↑ al alza</span>':''}
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0">${farPills}</div>
+              <div style="font-size:11px;color:var(--muted)"><em>Margarita: fórmula láctea + pañales explican el crecimiento. La fórmula debería ir bajando a medida que pase a comida normal.</em></div>` });
     }
 
     // ── 7. CAPITÁN ──────────────────────────────────────────
@@ -1031,31 +1034,31 @@ function buildResumen() {
           'Octubre':   null,
         };
 
-        const rows = nafMeses.map(m => {
+        const nafPills = nafMeses.map(m => {
           const naf    = catMes('Auto · Nafta',m);
           const viajes = complejoPorMes[m] || 0;
           const inter  = interiorNafta[m];
-          let extras = '';
-          if (inter && typeof inter === 'string') extras = ` + ${inter}`;
+          let extrasHtml = '';
+          if (inter && typeof inter === 'string') extrasHtml = `<div style="font-size:10px;color:var(--muted);margin-top:2px">${inter}</div>`;
           else if (inter && inter.nota) {
             const aprox = fmt(Math.round((inter.km/RINDE)*PL + (inter.peajes||0)));
-            extras = ` + ${inter.nota} (~${aprox})`;
+            extrasHtml = `<div style="font-size:10px;color:var(--muted);margin-top:2px">${inter.nota} (~${aprox})</div>`;
           }
-          return `<span style="white-space:nowrap">${m}: <strong>${fmtK(naf)}</strong> · ${viajes} viajes al Complejo${extras}</span>`;
-        }).join(' &nbsp;·&nbsp; ');
+          const viajesHtml = viajes > 0 ? `<div style="font-size:11px;color:var(--muted)">${viajes} viajes</div>` : '';
+          return `<div style="background:var(--bg2);border-radius:6px;padding:6px 10px;font-size:12px;min-width:90px">
+            <div style="color:var(--muted);font-size:11px">${m}</div>
+            <strong>${fmtK(naf)}</strong>
+            ${viajesHtml}${extrasHtml}
+          </div>`;
+        }).join('');
 
         const costSarm = fmt((KM_SARM/RINDE)*PL);
         const costPV   = fmt((KM_PV/RINDE)*PL);
 
         apuntes.push({ icon:'ti-gas-station',
-          html:`<strong>Nafta por mes:</strong><br>
-                <span style="font-size:12px;line-height:2">${rows}</span><br>
-                <span style="font-size:12px">
-                  Fiat Strada 12km/l · Sarmiento→Complejo ~64km RT ≈ <strong>${costSarm}/viaje</strong> ·
-                  Playa Verde RT ~150km ≈ <strong>${costPV}</strong> + 4 peajes
-                  (est. $${PL}/litro).
-                  Mayo (19 viajes, preparación Mundial) explica el pico.
-                </span>` });
+          html:`<strong>Nafta por mes</strong>
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0">${nafPills}</div>
+                <div style="font-size:11px;color:var(--muted)">Fiat Strada 12km/l · Sarmiento→Complejo ~64km RT ≈ <strong>${costSarm}/viaje</strong> · Playa Verde RT ~150km ≈ <strong>${costPV}</strong> + 4 peajes. Mayo (19 viajes, preparación Mundial) explica el pico.</div>` });
       }
     }
 
@@ -1092,28 +1095,30 @@ function buildResumen() {
         return { m, dm, fuera, xDia, pct, nota: diasFuera[m]?.nota || '' };
       });
 
-      const rows = rates.map(r => {
-        const viat    = viaticosXMes[r.m] || 0;
-        const fuera   = r.fuera > 0 ? ` · ${r.fuera}d fuera (${diasFuera[r.m]?.nota || ''})` : '';
-        const viatTag = viat > 0 ? ` · <span style="color:#059669">+U$S ${viat} viáticos</span>` : '';
-        return `<span style="white-space:nowrap">${r.m}: <strong>${fmt(r.xDia)}/día</strong>${fuera}${viatTag}</span>`;
-      }).join(' &nbsp;·&nbsp; ');
-
       const sorted    = [...rates].sort((a,b)=>a.xDia-b.xDia);
       const menor     = sorted[0];
       const mayor     = sorted[sorted.length-1];
       const totalViat = Object.values(viaticosXMes).reduce((s,v)=>s+v,0);
       const viatMeses = Object.keys(viaticosXMes).join(' y ');
 
+      const diasPills = rates.map(r => {
+        const viat    = viaticosXMes[r.m] || 0;
+        const esMenor = r.m === menor.m;
+        const esMayor = r.m === mayor.m;
+        const badge   = esMenor ? `<span style="font-size:10px;color:#059669">↓ mínimo</span>` : esMayor ? `<span style="font-size:10px;color:#DC2626">↑ máximo</span>` : '';
+        const fueraHtml = r.fuera > 0 ? `<div style="font-size:10px;color:var(--muted)">${r.fuera}d fuera</div>` : '';
+        const viatHtml  = viat > 0 ? `<div style="font-size:10px;color:#059669">+U$S ${viat}</div>` : '';
+        return `<div style="background:var(--bg2);border-radius:6px;padding:6px 10px;font-size:12px;min-width:90px">
+          <div style="color:var(--muted);font-size:11px">${r.m}</div>
+          <strong>${fmt(r.xDia)}/día</strong> ${badge}
+          ${fueraHtml}${viatHtml}
+        </div>`;
+      }).join('');
+
       apuntes.push({ icon:'ti-plane-departure',
-        html:`<strong>Días fuera vs gasto diario:</strong><br>
-              <span style="font-size:12px;line-height:2">${rows}</span><br>
-              <span style="font-size:12px">
-                Menor gasto/día: <strong>${menor.m}</strong> (${fmt(menor.xDia)}, ${menor.fuera}d fuera) ·
-                Mayor: <strong>${mayor.m}</strong> (${fmt(mayor.xDia)}, ${mayor.fuera}d fuera).<br>
-                Viajes de trabajo (${viatMeses}): delegación cubre los gastos del día a día <em>y además</em>
-                entraron U$S ${totalViat} en viáticos (~${fmtK(totalViat*tc)}).
-              </span>` });
+        html:`<strong>Días fuera vs gasto diario</strong>
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0">${diasPills}</div>
+              <div style="font-size:11px;color:var(--muted)">Viajes de trabajo (${viatMeses}): delegación cubre gastos del día a día <em>y además</em> entraron U$S ${totalViat} en viáticos (~${fmtK(totalViat*tc)}).</div>` });
     }
 
     // ── 10c. Servicio doméstico — cambio de empleada ────────
