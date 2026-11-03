@@ -900,7 +900,7 @@ function buildResumen() {
     const apuntes = [];   // contexto e insights → sección Apuntes
 
     const fmt   = v => '$' + Math.round(v).toLocaleString('es-UY');
-    const fmtK  = v => '$' + Math.round(v/1000) + 'k';
+    const fmtK  = v => v >= 950 ? '$' + Math.round(v/1000) + 'k' : '$' + Math.round(v);
     const catMes   = (cat, mes) => txs.filter(t=>t.categoria===cat&&t.mes===mes).reduce((s,t)=>s+t.monto,0);
     const catTotal = cat        => txs.filter(t=>t.categoria===cat).reduce((s,t)=>s+t.monto,0);
     const totMes   = mes        => Object.values(D.gastos[mes]||{}).reduce((s,v)=>s+v,0);
@@ -918,17 +918,25 @@ function buildResumen() {
     const nAhorro     = balances.filter(x=>x.delta>=0).length;
     const nDeficit    = balances.filter(x=>x.delta<0).length;
 
-    const balRow = balances.map(x => {
-      if (x.delta >= 0) {
-        return `<span style="white-space:nowrap">${x.m}: <strong style="color:#059669">ahorraste ${fmtK(x.delta)}</strong></span>`;
-      } else {
-        return `<span style="white-space:nowrap">${x.m}: <strong style="color:#DC2626">gastaste ${fmtK(-x.delta)} de más</strong></span>`;
-      }
-    }).join(' &nbsp;·&nbsp; ');
+    const balPills = balances.map(x => {
+      const ok  = x.delta >= 0;
+      const clr = ok ? '#059669' : '#DC2626';
+      const bg  = ok ? 'rgba(5,150,105,.08)' : 'rgba(220,38,38,.08)';
+      const sign = ok ? '+' : '−';
+      return `<div style="background:${bg};border:1px solid ${clr}22;border-radius:7px;padding:5px 6px;text-align:center">
+        <div style="font-size:10px;color:var(--muted);margin-bottom:2px">${x.m.slice(0,3).toUpperCase()}</div>
+        <div style="font-size:13px;font-weight:700;color:${clr};line-height:1.1">${sign}${fmtK(Math.abs(x.delta))}</div>
+      </div>`;
+    }).join('');
+    const resumen = nDeficit === 0
+      ? `<span style="color:#059669">Todos los meses cubiertos</span>`
+      : nAhorro === 0
+        ? `<span style="color:#DC2626">Todos los meses en déficit</span>`
+        : `<span style="color:#DC2626">${nDeficit} en déficit</span> &nbsp;·&nbsp; <span style="color:#059669">${nAhorro} cubiertos</span>`;
 
     alerts.push({ type: nDeficit > nAhorro ? 'warn' : 'ok', icon: 'ti-piggy-bank',
-      html: `<strong>¿Vivís con el sueldo AUF?</strong><br>
-             <span style="font-size:12px;line-height:2">${balRow}</span>` });
+      html: `<strong>¿Vivís con el sueldo AUF?</strong> &nbsp;<span style="font-size:12px;color:var(--muted)">${resumen}</span>
+             <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:8px 0">${balPills}</div>` });
 
     // ── 2. DETECCIÓN DE SUBAS EN GASTOS FIJOS ──────────────
     const fijos = ['Hogar · Gas','Hogar · UTE','Hogar · Antel','Hogar · DirecTV','Telefonía','Auto · Seguro'];
@@ -939,11 +947,25 @@ function buildResumen() {
       const ant = catMes(cat, conGasto[conGasto.length-2]);
       const pct = ((ult-ant)/ant*100);
       if (pct > 12 && ult-ant > 300) {
+        const mes = conGasto[conGasto.length-1];
         alerts.push({ type:'warn', icon:'ti-arrow-up',
-          html:`<strong>${cat} subió:</strong> ${fmt(ant)} → ${fmt(ult)} en ${conGasto[conGasto.length-1]} (+${Math.round(pct)}%).` });
+          html:`<strong>${cat}</strong> <span style="font-size:11px;color:var(--muted)">${mes}</span>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                  <span style="font-size:13px;color:var(--muted)">${fmt(ant)}</span>
+                  <span style="color:#DC2626;font-size:13px">→</span>
+                  <span style="font-size:15px;font-weight:700;color:#DC2626">${fmt(ult)}</span>
+                  <span style="font-size:11px;background:#FEE2E2;color:#DC2626;border-radius:4px;padding:1px 6px">+${Math.round(pct)}%</span>
+                </div>` });
       } else if (pct < -12 && ant-ult > 300) {
+        const mes = conGasto[conGasto.length-1];
         alerts.push({ type:'ok', icon:'ti-arrow-down',
-          html:`<strong>${cat} bajó:</strong> ${fmt(ant)} → ${fmt(ult)} en ${conGasto[conGasto.length-1]} (−${Math.round(Math.abs(pct))}%).` });
+          html:`<strong>${cat}</strong> <span style="font-size:11px;color:var(--muted)">${mes}</span>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:4px">
+                  <span style="font-size:13px;color:var(--muted)">${fmt(ant)}</span>
+                  <span style="color:#059669;font-size:13px">→</span>
+                  <span style="font-size:15px;font-weight:700;color:#059669">${fmt(ult)}</span>
+                  <span style="font-size:11px;background:#ECFDF5;color:#059669;border-radius:4px;padding:1px 6px">−${Math.round(Math.abs(pct))}%</span>
+                </div>` });
       }
     });
 
@@ -974,8 +996,14 @@ function buildResumen() {
     const ropaTotal = catTotal('Ropa');
     const ropaMeses = meses.filter(m=>catMes('Ropa',m)>0);
     if (ropaTotal > 0) {
+      const ropaPills = ropaMeses.map(m =>
+        `<div style="background:var(--bg2);border-radius:6px;padding:4px 8px;font-size:12px;text-align:center">
+          <div style="color:var(--muted);font-size:11px">${m}</div>
+          <strong>${fmtK(catMes('Ropa',m))}</strong>
+        </div>`).join('');
       apuntes.push({ icon:'ti-shirt',
-        html:`<strong>Ropa:</strong> ${fmtK(ropaTotal)} total en ${ropaMeses.length} de ${meses.length} meses (${ropaMeses.join(', ')}). Promedio ${fmtK(ropaTotal/Math.max(ropaMeses.length,1))}/mes activo.` });
+        html:`<strong>Ropa</strong> <span style="font-size:11px;color:var(--muted)">${fmtK(ropaTotal)} total · prom. ${fmtK(ropaTotal/Math.max(ropaMeses.length,1))}/mes activo</span>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0">${ropaPills}</div>` });
     }
 
     // ── 6. FARMACIA — tendencia ─────────────────────────────
@@ -984,13 +1012,13 @@ function buildResumen() {
       const vals = farMeses.map(m=>catMes('Farmacia',m));
       const alza = vals[vals.length-1] > vals[0]*1.2;
       const farPills = farMeses.map((m,i)=>
-        `<div style="background:var(--bg2);border-radius:6px;padding:5px 10px;font-size:12px;text-align:center;min-width:80px">
+        `<div style="background:var(--bg2);border-radius:6px;padding:4px 8px;font-size:12px;text-align:center">
           <div style="color:var(--muted);font-size:11px">${m}</div>
           <strong>${fmtK(vals[i])}</strong>
         </div>`).join('');
       apuntes.push({ icon:'ti-pill',
         html:`<strong>Farmacia</strong>${alza?' <span style="font-size:11px;background:#FEE2E2;color:#DC2626;border-radius:4px;padding:2px 6px">↑ al alza</span>':''}
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0">${farPills}</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0">${farPills}</div>
               <div style="font-size:11px;color:var(--muted)"><em>Margarita: fórmula láctea + pañales explican el crecimiento. La fórmula debería ir bajando a medida que pase a comida normal.</em></div>` });
     }
 
@@ -998,8 +1026,14 @@ function buildResumen() {
     const capTotal = catTotal('Capitán');
     const capMeses = meses.filter(m=>catMes('Capitán',m)>0);
     if (capTotal > 0) {
+      const capPills = capMeses.map(m =>
+        `<div style="background:var(--bg2);border-radius:6px;padding:4px 8px;font-size:12px;text-align:center">
+          <div style="color:var(--muted);font-size:11px">${m}</div>
+          <strong>${fmtK(catMes('Capitán',m))}</strong>
+        </div>`).join('');
       apuntes.push({ icon:'ti-paw',
-        html:`<strong>Capitán:</strong> ${fmtK(capTotal)} en ${capMeses.length} de ${meses.length} meses (${capMeses.join(', ')}). Gasto irregular — veterinaria, accesorios y comida.` });
+        html:`<strong>Capitán</strong> <span style="font-size:11px;color:var(--muted)">${fmtK(capTotal)} total · veterinaria, accesorios, comida</span>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0">${capPills}</div>` });
     }
 
     // ── 8. NAFTA + COMPLEJO CELESTE ─────────────────────────
@@ -1057,7 +1091,7 @@ function buildResumen() {
 
         apuntes.push({ icon:'ti-gas-station',
           html:`<strong>Nafta por mes</strong>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0">${nafPills}</div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0">${nafPills}</div>
                 <div style="font-size:11px;color:var(--muted)">Fiat Strada 12km/l · Sarmiento→Complejo ~64km RT ≈ <strong>${costSarm}/viaje</strong> · Playa Verde RT ~150km ≈ <strong>${costPV}</strong> + 4 peajes. Mayo (19 viajes, preparación Mundial) explica el pico.</div>` });
       }
     }
@@ -1117,7 +1151,7 @@ function buildResumen() {
 
       apuntes.push({ icon:'ti-plane-departure',
         html:`<strong>Días fuera vs gasto diario</strong>
-              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:8px 0">${diasPills}</div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0">${diasPills}</div>
               <div style="font-size:11px;color:var(--muted)">Viajes de trabajo (${viatMeses}): delegación cubre gastos del día a día <em>y además</em> entraron U$S ${totalViat} en viáticos (~${fmtK(totalViat*tc)}).</div>` });
     }
 
