@@ -198,6 +198,9 @@
   .cl-btn-green  { background:var(--green); color:#fff; }
   .cl-btn-outline{ background:none; border:1px solid var(--border); color:var(--muted); }
   .cl-form { background:#F8FAFC; border-radius:8px; padding:12px; margin-bottom:12px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+  .cl-tipo-btn { height:26px; border-radius:5px; font-size:11px; font-weight:600; cursor:pointer; border:1px solid var(--border); background:var(--bg); color:var(--text); padding:0 10px; }
+  .cl-tipo-btn:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+  @media(prefers-color-scheme:dark){ .cl-form{background:#1e2432} .cl-tipo-btn{background:#1e2432} }
   .cl-item { display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--border); font-size:13px; gap:8px; }
   .cl-item:last-child { border-bottom:none; }
   .cl-total { display:flex; justify-content:space-between; padding-top:10px; font-weight:700; font-size:14px; border-top:2px solid var(--border); margin-top:4px; }
@@ -478,6 +481,29 @@
   </div>
   <!-- ── Liquidador activo ─────────────────────────── -->
   <div style="margin-top:16px">
+
+    <!-- iCal Airbnb -->
+    <div class="card" id="cl-ical-card" style="margin-bottom:16px">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <div class="card-title" style="margin-bottom:2px">Airbnb <span style="font-size:12px;font-weight:400;color:var(--muted)">— sync automático</span></div>
+          <div id="cl-ical-status" style="font-size:12px;color:var(--muted)">Sin URL configurada</div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <button class="cl-btn cl-btn-outline" onclick="clToggleIcal()" id="cl-ical-cfg-btn" style="font-size:11px">⚙ URL</button>
+          <button class="cl-btn cl-btn-green"   onclick="clSyncIcal()"   id="cl-sync-btn"     style="font-size:11px">↻ Sincronizar</button>
+        </div>
+      </div>
+      <div id="cl-ical-cfg" style="display:none;margin-top:12px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Pegá el enlace iCal de tu portal de anfitrión de Airbnb (Calendario → Exportar)</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input class="cl-input" id="cl-ical-url" type="text" placeholder="https://www.airbnb.com/calendar/ical/..." style="flex:1;min-width:200px;font-size:11px">
+          <button class="cl-btn cl-btn-green" onclick="clGuardarIcal()" style="font-size:11px">Guardar</button>
+          <button class="cl-btn cl-btn-outline" onclick="clToggleIcal()" style="font-size:11px;padding:0 10px">✕</button>
+        </div>
+      </div>
+    </div>
+
     <div class="cl-grid">
       <!-- Gastos en curso -->
       <div class="card">
@@ -486,6 +512,12 @@
           <button class="cl-btn cl-btn-outline" onclick="clToggleForm('gasto')">+ Agregar</button>
         </div>
         <div id="cl-form-gasto" style="display:none" class="cl-form">
+          <!-- Tipo rápido -->
+          <div style="display:flex;gap:6px;width:100%;margin-bottom:4px">
+            <button class="cl-tipo-btn" onclick="clSetTipo('Mabel')">🧹 Mabel</button>
+            <button class="cl-tipo-btn" onclick="clSetTipo('UTE Roberto')">💡 UTE Roberto</button>
+            <button class="cl-tipo-btn" onclick="clSetTipo('Otro')">+ Otro</button>
+          </div>
           <input class="cl-input" id="cl-g-fecha"    type="text"   placeholder="Fecha (14/10)"  style="width:95px">
           <input class="cl-input" id="cl-g-concepto" type="text"   placeholder="Concepto"       style="flex:1;min-width:120px">
           <input class="cl-input" id="cl-g-monto"    type="number" placeholder="$"              style="width:80px">
@@ -498,7 +530,7 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
           <div class="card-title" style="margin-bottom:0">Reservas activas</div>
-          <button class="cl-btn cl-btn-outline" onclick="clToggleForm('reserva')">+ Agregar</button>
+          <button class="cl-btn cl-btn-outline" onclick="clToggleForm('reserva')">+ Manual</button>
         </div>
         <div id="cl-form-reserva" style="display:none" class="cl-form">
           <input class="cl-input" id="cl-r-huesped" type="text"   placeholder="Huésped"          style="flex:1;min-width:100px">
@@ -1852,12 +1884,86 @@ function buildCasita() {
 
 // ── CASITA LIQUIDADOR ───────────────────────────────────
 (function(){
-  const KEY = 'casita_ledger';
-  function get(){ try{ return JSON.parse(localStorage.getItem(KEY))||{gastos:[],reservas:[],tc:45}; }catch{ return {gastos:[],reservas:[],tc:45}; } }
+  const KEY  = 'casita_ledger';
+  const API  = 'http://localhost:3001';
+  function get(){
+    try{
+      const d = JSON.parse(localStorage.getItem(KEY))||{};
+      return { ical_url:'', gastos:[], reservas:[], tc:45, ...d };
+    }catch{ return {ical_url:'',gastos:[],reservas:[],tc:45}; }
+  }
   function save(l){ try{ localStorage.setItem(KEY,JSON.stringify(l)); }catch{} }
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
   function fmtP(n){ return '$'+Math.round(n).toLocaleString('es-UY'); }
   function fmtU(n){ return 'U$S '+n.toLocaleString('es-UY',{minimumFractionDigits:0,maximumFractionDigits:0}); }
+
+  // Formato YYYYMMDD → "12/10"
+  function fmtIcalDate(s){
+    if(!s||s.length<8) return s||'';
+    return s.slice(6,8)+'/'+s.slice(4,6);
+  }
+
+  window.clToggleIcal = function(){
+    const el = document.getElementById('cl-ical-cfg');
+    const show = el.style.display==='none';
+    el.style.display = show?'':'none';
+    if(show){ document.getElementById('cl-ical-url').value = get().ical_url||''; }
+  };
+
+  window.clGuardarIcal = function(){
+    const url = document.getElementById('cl-ical-url').value.trim();
+    const l=get(); l.ical_url=url; save(l);
+    document.getElementById('cl-ical-cfg').style.display='none';
+    clRender();
+  };
+
+  window.clSyncIcal = async function(){
+    const l=get();
+    if(!l.ical_url){ alert('Configurá primero la URL de Airbnb (⚙ URL)'); return; }
+    const btn = document.getElementById('cl-sync-btn');
+    btn.textContent='…'; btn.disabled=true;
+    const statusEl = document.getElementById('cl-ical-status');
+    try{
+      const res = await fetch(API+'/api/ical?url='+encodeURIComponent(l.ical_url));
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error||'Error');
+      const events = data.events||[];
+      // Merge: add new events (by uid), keep manual reservas without uid
+      const existingUids = new Set(l.reservas.filter(r=>r.uid).map(r=>r.uid));
+      const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
+      let added=0;
+      events.forEach(ev=>{
+        if(!ev.uid||existingUids.has(ev.uid)) return;
+        // Only add future or recent (last 60 days)
+        const dEnd = ev.fechaOut||'';
+        const dStart = ev.fechaIn||'';
+        const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-60);
+        const cutoffStr = cutoff.toISOString().slice(0,10).replace(/-/g,'');
+        if(dEnd && dEnd < cutoffStr) return;
+        l.reservas.push({
+          id: uid(), uid: ev.uid,
+          huesped: ev.huesped,
+          fechas: fmtIcalDate(dStart)+(dEnd?'–'+fmtIcalDate(dEnd):''),
+          montoPesos: null
+        });
+        added++;
+      });
+      save(l);
+      statusEl.textContent = `Última sync: ahora · ${events.length} reservas en Airbnb · +${added} nuevas`;
+      statusEl.style.color='var(--green)';
+    }catch(e){
+      statusEl.textContent = 'Error: '+e.message+' — ¿Está corriendo el servidor local?';
+      statusEl.style.color='var(--red)';
+    }finally{
+      btn.textContent='↻ Sincronizar'; btn.disabled=false;
+      clRender();
+    }
+  };
+
+  window.clSetTipo = function(tipo){
+    document.getElementById('cl-g-concepto').value = tipo;
+    document.getElementById('cl-g-monto').focus();
+  };
 
   window.clToggleForm = function(t){
     const el=document.getElementById('cl-form-'+t);
@@ -1909,6 +2015,15 @@ function buildCasita() {
     if(!gEl||!rEl) return;
     const l=get();
     const totalGastos=l.gastos.reduce((s,g)=>s+g.monto,0);
+
+    // iCal status
+    const statusEl=document.getElementById('cl-ical-status');
+    if(statusEl && !statusEl.textContent.startsWith('Última sync')){
+      if(l.ical_url) {
+        statusEl.textContent='URL configurada — click ↻ para sincronizar';
+        statusEl.style.color='var(--muted)';
+      }
+    }
 
     // Gastos
     gEl.innerHTML = l.gastos.length===0
