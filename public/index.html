@@ -482,28 +482,6 @@
   <!-- ── Liquidador activo ─────────────────────────── -->
   <div style="margin-top:16px">
 
-    <!-- iCal Airbnb -->
-    <div class="card" id="cl-ical-card" style="margin-bottom:16px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
-        <div>
-          <div class="card-title" style="margin-bottom:2px">Airbnb <span style="font-size:12px;font-weight:400;color:var(--muted)">— sync automático</span></div>
-          <div id="cl-ical-status" style="font-size:12px;color:var(--muted)">Sin URL configurada</div>
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <button class="cl-btn cl-btn-outline" onclick="clToggleIcal()" id="cl-ical-cfg-btn" style="font-size:11px">⚙ URL</button>
-          <button class="cl-btn cl-btn-green"   onclick="clSyncIcal()"   id="cl-sync-btn"     style="font-size:11px">↻ Sincronizar</button>
-        </div>
-      </div>
-      <div id="cl-ical-cfg" style="display:none;margin-top:12px">
-        <div style="font-size:12px;color:var(--muted);margin-bottom:6px">Pegá el enlace iCal de tu portal de anfitrión de Airbnb (Calendario → Exportar)</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <input class="cl-input" id="cl-ical-url" type="text" placeholder="https://www.airbnb.com/calendar/ical/..." style="flex:1;min-width:200px;font-size:11px">
-          <button class="cl-btn cl-btn-green" onclick="clGuardarIcal()" style="font-size:11px">Guardar</button>
-          <button class="cl-btn cl-btn-outline" onclick="clToggleIcal()" style="font-size:11px;padding:0 10px">✕</button>
-        </div>
-      </div>
-    </div>
-
     <div class="cl-grid">
       <!-- Gastos en curso -->
       <div class="card">
