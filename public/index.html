@@ -481,48 +481,53 @@
   </div>
   <!-- ── Liquidador activo ─────────────────────────── -->
   <div style="margin-top:16px">
-
-    <div class="cl-grid">
-      <!-- Gastos en curso -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div class="card-title" style="margin-bottom:0">Gastos en curso</div>
-          <button class="cl-btn cl-btn-outline" onclick="clToggleForm('gasto')">+ Agregar</button>
-        </div>
-        <div id="cl-form-gasto" style="display:none" class="cl-form">
-          <!-- Tipo rápido -->
-          <div style="display:flex;gap:6px;width:100%;margin-bottom:4px">
-            <button class="cl-tipo-btn" onclick="clSetTipo('Mabel')">🧹 Mabel</button>
-            <button class="cl-tipo-btn" onclick="clSetTipo('UTE Roberto')">💡 UTE Roberto</button>
-            <button class="cl-tipo-btn" onclick="clSetTipo('Otro')">+ Otro</button>
-          </div>
-          <input class="cl-input" id="cl-g-fecha"    type="text"   placeholder="Fecha (14/10)"  style="width:95px">
-          <input class="cl-input" id="cl-g-concepto" type="text"   placeholder="Concepto"       style="flex:1;min-width:120px">
-          <input class="cl-input" id="cl-g-monto"    type="number" placeholder="$"              style="width:80px">
-          <button class="cl-btn cl-btn-green"   onclick="clGuardarGasto()">Guardar</button>
-          <button class="cl-btn cl-btn-outline" onclick="clToggleForm('gasto')" style="padding:0 10px">✕</button>
-        </div>
-        <div id="cl-gastos-list"></div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">Movimientos activos</div>
+        <button class="cl-btn cl-btn-green" onclick="clToggleForm('reserva')" style="font-size:12px">+ Nueva reserva</button>
       </div>
-      <!-- Reservas activas -->
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
-          <div class="card-title" style="margin-bottom:0">Reservas activas</div>
-          <button class="cl-btn cl-btn-outline" onclick="clToggleForm('reserva')">+ Manual</button>
-        </div>
-        <div id="cl-form-reserva" style="display:none" class="cl-form">
-          <input class="cl-input" id="cl-r-huesped" type="text"   placeholder="Huésped"          style="flex:1;min-width:100px">
-          <input class="cl-input" id="cl-r-fechas"  type="text"   placeholder="Fechas (16-18/10)" style="flex:1;min-width:110px">
-          <input class="cl-input" id="cl-r-monto"   type="number" placeholder="$ Airbnb (si llegó)" style="width:150px">
+
+      <!-- Form nueva reserva -->
+      <div id="cl-form-reserva" style="display:none;background:#F0FDF4;border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Nueva reserva</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <input class="cl-input" id="cl-r-huesped"  type="text"   placeholder="Nombre huésped"   style="flex:1;min-width:120px">
+          <input class="cl-input" id="cl-r-entrada"  type="text"   placeholder="Entrada (07/11)"   style="width:100px">
+          <input class="cl-input" id="cl-r-salida"   type="text"   placeholder="Salida  (08/11)"   style="width:100px">
+          <select class="cl-input" id="cl-r-tipo" style="width:100px">
+            <option value="Airbnb">Airbnb</option>
+            <option value="Directo">Directo</option>
+          </select>
+          <input class="cl-input" id="cl-r-monto"    type="number" placeholder="$ recibidos"       style="width:120px">
           <button class="cl-btn cl-btn-green"   onclick="clGuardarReserva()">Guardar</button>
           <button class="cl-btn cl-btn-outline" onclick="clToggleForm('reserva')" style="padding:0 10px">✕</button>
         </div>
-        <div id="cl-reservas-list"></div>
+      </div>
+
+      <!-- Form gasto extra -->
+      <div id="cl-form-gasto" style="display:none;background:#FFF7ED;border-radius:10px;padding:14px;margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px">Gasto adicional</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+          <input class="cl-input" id="cl-g-fecha"    type="text"   placeholder="Fecha (14/11)"    style="width:95px">
+          <input class="cl-input" id="cl-g-concepto" type="text"   placeholder="Concepto"         style="flex:1;min-width:120px">
+          <input class="cl-input" id="cl-g-monto"    type="number" placeholder="$"                style="width:90px">
+          <button class="cl-btn cl-btn-green"   onclick="clGuardarGasto()">Guardar</button>
+          <button class="cl-btn cl-btn-outline" onclick="clToggleForm('gasto')" style="padding:0 10px">✕</button>
+        </div>
+      </div>
+
+      <!-- Lista de movimientos -->
+      <div id="cl-movimientos-list"></div>
+
+      <!-- Botón gasto extra (siempre visible si hay movimientos) -->
+      <div id="cl-add-gasto-wrap" style="display:none;margin-top:12px">
+        <button class="cl-btn cl-btn-outline" onclick="clToggleForm('gasto')" style="font-size:12px">+ Gasto adicional</button>
       </div>
     </div>
-    <!-- Liquidación -->
+
+    <!-- Resumen -->
     <div class="card" id="cl-liquidacion-card" style="margin-top:16px;display:none">
-      <div class="card-title">Liquidación</div>
+      <div class="card-title">Resumen</div>
       <div id="cl-liq-body"></div>
     </div>
   </div>
@@ -1862,90 +1867,69 @@ function buildCasita() {
 
 // ── CASITA LIQUIDADOR ───────────────────────────────────
 (function(){
-  const KEY  = 'casita_ledger';
-  const API  = 'http://localhost:3001';
+  const KEY = 'casita_ledger2';
+  // Estado: { movimientos: [{id, tipo:'reserva'|'gasto'|'mabel', ...}], historico:[{...}], tc }
+  // reserva: { id, tipo:'reserva', huesped, entrada, salida, canal:'Airbnb'|'Directo', monto }
+  // gasto:   { id, tipo:'gasto'|'mabel', fecha, concepto, monto }
   function get(){
     try{
       const d = JSON.parse(localStorage.getItem(KEY))||{};
-      return { ical_url:'', gastos:[], reservas:[], tc:45, ...d };
-    }catch{ return {ical_url:'',gastos:[],reservas:[],tc:45}; }
+      return { movimientos:[], historico:[], tc:45, ...d };
+    }catch{ return {movimientos:[],historico:[],tc:45}; }
   }
   function save(l){ try{ localStorage.setItem(KEY,JSON.stringify(l)); }catch{} }
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
   function fmtP(n){ return '$'+Math.round(n).toLocaleString('es-UY'); }
   function fmtU(n){ return 'U$S '+n.toLocaleString('es-UY',{minimumFractionDigits:0,maximumFractionDigits:0}); }
 
-  // Formato YYYYMMDD → "12/10"
-  function fmtIcalDate(s){
-    if(!s||s.length<8) return s||'';
-    return s.slice(6,8)+'/'+s.slice(4,6);
-  }
-
-  window.clToggleIcal = function(){
-    const el = document.getElementById('cl-ical-cfg');
-    const show = el.style.display==='none';
-    el.style.display = show?'':'none';
-    if(show){ document.getElementById('cl-ical-url').value = get().ical_url||''; }
-  };
-
-  window.clGuardarIcal = function(){
-    const url = document.getElementById('cl-ical-url').value.trim();
-    const l=get(); l.ical_url=url; save(l);
-    document.getElementById('cl-ical-cfg').style.display='none';
-    clRender();
-  };
-
-  window.clSyncIcal = async function(){
-    const l=get();
-    if(!l.ical_url){ alert('Configurá primero la URL de Airbnb (⚙ URL)'); return; }
-    const btn = document.getElementById('cl-sync-btn');
-    btn.textContent='…'; btn.disabled=true;
-    const statusEl = document.getElementById('cl-ical-status');
-    try{
-      const res = await fetch(API+'/api/ical?url='+encodeURIComponent(l.ical_url));
-      const data = await res.json();
-      if(!data.ok) throw new Error(data.error||'Error');
-      const events = data.events||[];
-      // Merge: add new events (by uid), keep manual reservas without uid
-      const existingUids = new Set(l.reservas.filter(r=>r.uid).map(r=>r.uid));
-      const today = new Date().toISOString().slice(0,10).replace(/-/g,'');
-      let added=0;
-      events.forEach(ev=>{
-        if(!ev.uid||existingUids.has(ev.uid)) return;
-        // Only add future or recent (last 60 days)
-        const dEnd = ev.fechaOut||'';
-        const dStart = ev.fechaIn||'';
-        const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-60);
-        const cutoffStr = cutoff.toISOString().slice(0,10).replace(/-/g,'');
-        if(dEnd && dEnd < cutoffStr) return;
-        l.reservas.push({
-          id: uid(), uid: ev.uid,
-          huesped: ev.huesped,
-          fechas: fmtIcalDate(dStart)+(dEnd?'–'+fmtIcalDate(dEnd):''),
-          montoPesos: null
-        });
-        added++;
-      });
-      save(l);
-      statusEl.textContent = `Última sync: ahora · ${events.length} reservas en Airbnb · +${added} nuevas`;
-      statusEl.style.color='var(--green)';
-    }catch(e){
-      statusEl.textContent = 'Error: '+e.message+' — ¿Está corriendo el servidor local?';
-      statusEl.style.color='var(--red)';
-    }finally{
-      btn.textContent='↻ Sincronizar'; btn.disabled=false;
-      clRender();
-    }
-  };
-
-  window.clSetTipo = function(tipo){
-    document.getElementById('cl-g-concepto').value = tipo;
-    document.getElementById('cl-g-monto').focus();
-  };
-
   window.clToggleForm = function(t){
     const el=document.getElementById('cl-form-'+t);
-    el.style.display = el.style.display==='none'?'':'none';
+    const isHidden = el.style.display==='none';
+    // Cerrar el otro form
+    ['reserva','gasto'].forEach(x=>{ if(x!==t) document.getElementById('cl-form-'+x).style.display='none'; });
+    el.style.display = isHidden?'':'none';
+  };
+
+  window.clGuardarReserva = function(){
+    const huesped = document.getElementById('cl-r-huesped').value.trim();
+    const entrada = document.getElementById('cl-r-entrada').value.trim();
+    const salida  = document.getElementById('cl-r-salida').value.trim();
+    const canal   = document.getElementById('cl-r-tipo').value;
+    const montoStr= document.getElementById('cl-r-monto').value;
+    if(!huesped) return;
+    const l=get();
+    const id = uid();
+    l.movimientos.push({id, tipo:'reserva', huesped, entrada, salida, canal, monto: montoStr?parseFloat(montoStr):null});
+    save(l);
+    ['cl-r-huesped','cl-r-entrada','cl-r-salida','cl-r-monto'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('cl-form-reserva').style.display='none';
+    clRender();
+    // Sugerir limpieza de Mabel
+    if(montoStr) clSugerirMabel(id, huesped);
+  };
+
+  function clSugerirMabel(ridId, huesped){
+    const wrap = document.getElementById('cl-movimientos-list');
+    const sug = document.createElement('div');
+    sug.id = 'cl-sug-mabel';
+    sug.style.cssText = 'background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:12px 14px;margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+    sug.innerHTML = `<span style="font-size:13px;flex:1">🧹 ¿Agregar limpieza de Mabel para <strong>${huesped}</strong>?</span>
+      <input class="cl-input" id="cl-sug-mabel-fecha" type="text" placeholder="Fecha" style="width:90px">
+      <input class="cl-input" id="cl-sug-mabel-monto" type="number" placeholder="$" style="width:90px">
+      <button class="cl-btn cl-btn-green" onclick="clGuardarMabel()" style="font-size:12px">Agregar</button>
+      <button onclick="document.getElementById('cl-sug-mabel').remove()" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1">×</button>`;
+    wrap.appendChild(sug);
+  }
+
+  window.clGuardarMabel = function(){
+    const fecha = document.getElementById('cl-sug-mabel-fecha').value.trim();
+    const monto = parseFloat(document.getElementById('cl-sug-mabel-monto').value);
+    if(!monto) return;
+    const l=get();
+    l.movimientos.push({id:uid(), tipo:'mabel', fecha, concepto:'Limpieza Mabel', monto});
+    save(l);
+    document.getElementById('cl-sug-mabel')?.remove();
+    clRender();
   };
 
   window.clGuardarGasto = function(){
@@ -1953,29 +1937,16 @@ function buildCasita() {
     const concepto = document.getElementById('cl-g-concepto').value.trim();
     const monto    = parseFloat(document.getElementById('cl-g-monto').value);
     if(!concepto||!monto) return;
-    const l=get(); l.gastos.push({id:uid(),fecha,concepto,monto}); save(l);
-    ['cl-g-fecha','cl-g-concepto','cl-g-monto'].forEach(id=>document.getElementById(id).value='');
+    const l=get();
+    l.movimientos.push({id:uid(), tipo:'gasto', fecha, concepto, monto});
+    save(l);
+    ['cl-g-fecha','cl-g-concepto','cl-g-monto'].forEach(x=>document.getElementById(x).value='');
     document.getElementById('cl-form-gasto').style.display='none';
     clRender();
   };
 
-  window.clGuardarReserva = function(){
-    const huesped = document.getElementById('cl-r-huesped').value.trim();
-    const fechas  = document.getElementById('cl-r-fechas').value.trim();
-    const montoStr= document.getElementById('cl-r-monto').value;
-    if(!huesped) return;
-    const l=get(); l.reservas.push({id:uid(),huesped,fechas,montoPesos:montoStr?parseFloat(montoStr):null}); save(l);
-    ['cl-r-huesped','cl-r-fechas','cl-r-monto'].forEach(id=>document.getElementById(id).value='');
-    document.getElementById('cl-form-reserva').style.display='none';
-    clRender();
-  };
-
-  window.clEliminarGasto   = function(id){ const l=get(); l.gastos  =l.gastos.filter(g=>g.id!==id);   save(l); clRender(); };
-  window.clEliminarReserva = function(id){ const l=get(); l.reservas=l.reservas.filter(r=>r.id!==id); save(l); clRender(); };
-
-  window.clActualizarMonto = function(id,val){
-    const l=get(); const r=l.reservas.find(r=>r.id===id);
-    if(r){ r.montoPesos=val?parseFloat(val):null; save(l); clRender(); }
+  window.clEliminar = function(id){
+    const l=get(); l.movimientos=l.movimientos.filter(m=>m.id!==id); save(l); clRender();
   };
 
   window.clActualizarTC = function(val){
@@ -1983,98 +1954,113 @@ function buildCasita() {
   };
 
   window.clSaldar = function(){
-    if(!confirm('¿Confirmar liquidación? Se limpiarán gastos y reservas activas.')) return;
-    const l=get(); l.gastos=[]; l.reservas=[]; save(l); clRender();
+    const l=get();
+    const ingresos = l.movimientos.filter(m=>m.tipo==='reserva'&&m.monto>0).reduce((s,m)=>s+m.monto,0);
+    const gastos   = l.movimientos.filter(m=>m.tipo!=='reserva').reduce((s,m)=>s+m.monto,0);
+    const neto     = ingresos-gastos;
+    const tc       = l.tc||45;
+    if(!confirm(`Saldar y archivar — neto girado a conjunta: ${fmtU(Math.round(neto/tc))}\n¿Confirmar?`)) return;
+    l.historico.unshift({
+      fecha: new Date().toLocaleDateString('es-UY'),
+      movimientos: [...l.movimientos],
+      ingresos, gastos, neto, tc,
+      netoUsd: Math.round(neto/tc)
+    });
+    l.movimientos=[];
+    save(l); clRender();
   };
 
   function clRender(){
-    const gEl=document.getElementById('cl-gastos-list');
-    const rEl=document.getElementById('cl-reservas-list');
-    if(!gEl||!rEl) return;
+    const wrap = document.getElementById('cl-movimientos-list');
+    if(!wrap) return;
     const l=get();
-    const totalGastos=l.gastos.reduce((s,g)=>s+g.monto,0);
+    const movs = l.movimientos;
+    const ingresos = movs.filter(m=>m.tipo==='reserva'&&m.monto>0).reduce((s,m)=>s+m.monto,0);
+    const gastos   = movs.filter(m=>m.tipo!=='reserva').reduce((s,m)=>s+m.monto,0);
+    const neto     = ingresos-gastos;
+    const tc       = l.tc||45;
 
-    // iCal status
-    const statusEl=document.getElementById('cl-ical-status');
-    if(statusEl && !statusEl.textContent.startsWith('Última sync')){
-      if(l.ical_url) {
-        statusEl.textContent='URL configurada — click ↻ para sincronizar';
-        statusEl.style.color='var(--muted)';
-      }
+    // Botón gasto adicional
+    const addGastoWrap = document.getElementById('cl-add-gasto-wrap');
+    if(addGastoWrap) addGastoWrap.style.display = movs.length?'':'none';
+
+    if(movs.length===0){
+      wrap.innerHTML='<p style="color:var(--muted);font-size:13px;padding:8px 0">Sin movimientos — agregá una reserva para empezar.</p>';
+    } else {
+      wrap.innerHTML = movs.map(m=>{
+        const isIngreso = m.tipo==='reserva';
+        const color = isIngreso ? 'var(--green)' : '#EF4444';
+        const icon  = m.tipo==='mabel' ? '🧹' : m.tipo==='reserva' ? '🏠' : '📋';
+        const label = m.tipo==='reserva'
+          ? `${m.huesped}${m.entrada?` · ${m.entrada}${m.salida?'–'+m.salida:''}`:''}<span style="margin-left:6px;font-size:11px;background:${m.canal==='Airbnb'?'#DBEAFE':'#D1FAE5'};color:${m.canal==='Airbnb'?'#1D4ED8':'#065F46'};border-radius:4px;padding:1px 6px">${m.canal}</span>`
+          : `${icon} ${m.concepto}${m.fecha?` <span style="font-size:11px;color:var(--muted)">· ${m.fecha}</span>`:''}`;
+        const monto = m.monto!=null
+          ? `<span style="font-weight:700;color:${color}">${isIngreso?'+':'−'}${fmtP(m.monto)}</span>`
+          : `<span style="font-size:12px;color:var(--muted)">sin monto</span>`;
+        return `<div class="cl-item">
+          <div style="flex:1;font-size:13px">${label}</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            ${monto}
+            <button onclick="clEliminar('${m.id}')" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:17px;line-height:1;padding:0">×</button>
+          </div>
+        </div>`;
+      }).join('');
     }
 
-    // Gastos
-    gEl.innerHTML = l.gastos.length===0
-      ? '<p style="color:var(--muted);font-size:13px;padding:8px 0">Sin gastos pendientes</p>'
-      : l.gastos.map(g=>`
-          <div class="cl-item">
-            <div>
-              <div style="font-weight:500">${g.concepto}</div>
-              ${g.fecha?`<div style="font-size:11px;color:var(--muted)">${g.fecha}</div>`:''}
-            </div>
-            <div style="display:flex;align-items:center;gap:10px">
-              <span style="font-weight:600">${fmtP(g.monto)}</span>
-              <button onclick="clEliminarGasto('${g.id}')" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:0">×</button>
-            </div>
-          </div>`).join('')
-      + (l.gastos.length>1?`<div class="cl-total"><span>Total</span><span>${fmtP(totalGastos)}</span></div>`:'');
-
-    // Reservas
-    rEl.innerHTML = l.reservas.length===0
-      ? '<p style="color:var(--muted);font-size:13px;padding:8px 0">Sin reservas activas</p>'
-      : l.reservas.map(r=>`
-          <div class="cl-item" style="flex-wrap:wrap">
-            <div style="flex:1">
-              <div style="font-weight:600">${r.huesped}</div>
-              ${r.fechas?`<div style="font-size:11px;color:var(--muted)">${r.fechas}</div>`:''}
-            </div>
-            <div style="display:flex;align-items:center;gap:8px">
-              <input class="cl-input" type="number" placeholder="$ Airbnb" value="${r.montoPesos||''}"
-                onchange="clActualizarMonto('${r.id}',this.value)" style="width:130px;height:28px;font-size:12px"
-                title="Ingresá el monto cuando llegue el pago de Airbnb">
-              <button onclick="clEliminarReserva('${r.id}')" style="border:none;background:none;cursor:pointer;color:var(--muted);font-size:18px;line-height:1;padding:0">×</button>
-            </div>
-          </div>`).join('');
-
-    // Liquidación
-    const rv = l.reservas.find(r=>r.montoPesos>0);
+    // Resumen
     const liqCard = document.getElementById('cl-liquidacion-card');
-    if(rv){
-      const ingreso = rv.montoPesos;
-      const neto    = ingreso - totalGastos;
-      const tc      = l.tc||45;
-      const netoUsd = neto/tc;
+    if(ingresos>0){
       liqCard.style.display='';
       document.getElementById('cl-liq-body').innerHTML=`
-        <div style="margin-bottom:16px">
-          <div class="cl-liq-row">
-            <span>Ingreso Airbnb — ${rv.huesped}</span>
-            <span style="color:var(--green);font-weight:600">${fmtP(ingreso)}</span>
-          </div>
-          <div class="cl-liq-row">
-            <span>Gastos a saldar</span>
-            <span style="color:var(--red);font-weight:600">−${fmtP(totalGastos)}</span>
-          </div>
-          <div class="cl-liq-final">
-            <span>Neto a girar (pesos)</span>
-            <span style="color:${neto>=0?'var(--green)':'var(--red)'}">${fmtP(neto)}</span>
-          </div>
+        <div style="margin-bottom:14px">
+          <div class="cl-liq-row"><span>Total ingresos</span><span style="color:var(--green);font-weight:600">${fmtP(ingresos)}</span></div>
+          <div class="cl-liq-row"><span>Total gastos</span><span style="color:#EF4444;font-weight:600">−${fmtP(gastos)}</span></div>
+          <div class="cl-liq-final"><span>Neto a girar</span><span style="color:${neto>=0?'var(--green)':'#EF4444'}">${fmtP(neto)}</span></div>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;padding:14px;background:#F0FDF4;border-radius:10px">
-          <span style="font-size:13px;color:var(--muted);white-space:nowrap">Tipo de cambio $1 =</span>
+          <span style="font-size:13px;color:var(--muted);white-space:nowrap">TC $1 =</span>
           <input class="cl-input" type="number" value="${tc}" step="0.5" min="1"
-            onchange="clActualizarTC(this.value)" style="width:80px" title="Pesos por dólar">
+            onchange="clActualizarTC(this.value)" style="width:80px">
           <span style="font-size:13px;color:var(--muted)">→</span>
-          <span style="font-size:20px;font-weight:700;color:var(--blue)">${fmtU(netoUsd)}</span>
+          <span style="font-size:22px;font-weight:700;color:var(--blue)">${fmtU(Math.round(neto/tc))}</span>
           <span style="font-size:12px;color:var(--muted)">a girar a la conjunta</span>
         </div>
-        <button class="cl-btn cl-btn-green" onclick="clSaldar()" style="height:36px;font-size:13px;padding:0 20px">
-          ✓ Saldar y limpiar
-        </button>`;
+        <button class="cl-btn cl-btn-green" onclick="clSaldar()" style="height:36px;font-size:13px;padding:0 20px">✓ Saldar y archivar</button>
+        ${l.historico.length?`<button class="cl-btn cl-btn-outline" onclick="clVerHistorico()" style="height:36px;font-size:13px;padding:0 16px;margin-left:8px">Historial (${l.historico.length})</button>`:''}`;
     } else {
       liqCard.style.display='none';
     }
+
+    // Historial
+    renderHistorico(l);
   }
+
+  function renderHistorico(l){
+    let hEl=document.getElementById('cl-historico-casita');
+    if(!l.historico.length){ if(hEl) hEl.remove(); return; }
+    if(!hEl){
+      hEl=document.createElement('div'); hEl.id='cl-historico-casita';
+      hEl.className='card'; hEl.style.marginTop='16px'; hEl.style.display='none';
+      document.getElementById('cl-liquidacion-card').after(hEl);
+    }
+    hEl.innerHTML=`<div class="card-title">Historial</div>`+
+      l.historico.map((h,i)=>`
+        <div class="cl-item" style="flex-wrap:wrap;gap:4px">
+          <div style="flex:1"><span style="font-weight:600">${h.fecha}</span>
+            <span style="font-size:12px;color:var(--muted);margin-left:8px">${h.movimientos.filter(m=>m.tipo==='reserva').map(m=>m.huesped).join(', ')}</span>
+          </div>
+          <div style="display:flex;gap:12px;align-items:center">
+            <span style="color:var(--green);font-weight:600">+${fmtP(h.ingresos)}</span>
+            <span style="color:#EF4444">−${fmtP(h.gastos)}</span>
+            <span style="font-weight:700;color:var(--blue)">${fmtU(h.netoUsd)}</span>
+          </div>
+        </div>`).join('');
+  }
+
+  window.clVerHistorico = function(){
+    const hEl=document.getElementById('cl-historico-casita');
+    if(hEl) hEl.style.display = hEl.style.display==='none'?'':'none';
+  };
 
   // Render cuando se activa la pestaña
   document.addEventListener('DOMContentLoaded',()=>{
